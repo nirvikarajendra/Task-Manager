@@ -77,4 +77,3 @@ async def login(request: LoginModel, db: AsyncSession = Depends(get_async_db)):
 
         return {"message": f"Welcome back, {user.email}", "token":token}
 
-#logout function

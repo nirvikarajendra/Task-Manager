@@ -8,23 +8,41 @@ from schema.tasks import TaskModel
 
 router = APIRouter(prefix="/task", tags=["Tasks"])
 
-@router.get("/")
+@router.get("/", status_code=status.HTTP_200_OK)
 async def get_task(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
-    result = await db.execute(select(Tasks).filter(Tasks.user_id == user["id"]))
-    return result.scalars().all()
+    try:
+        result = await db.execute(select(Tasks).filter(Tasks.user_id == user["id"]))
+        task = result.scalars().all()
 
+        if task is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
 
-@router.get("/{task_id}")
+        return task
+    
+    except Exception:
+         raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to get all tasks"
+            )
+    
+@router.get("/{task_id}", status_code=status.HTTP_200_OK)
 async def get_task_by_id(task_id: int = Path(gt=0), user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
-    result = await db.execute(select(Tasks).filter(Tasks.user_id == user["id"], Tasks.id == task_id))
-    task = result.scalars().first()
+    try:
+        result = await db.execute(select(Tasks).filter(Tasks.user_id == user["id"], Tasks.id == task_id))
+        task = result.scalars().first()
 
-    if task is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
+        if task is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
 
-    return task
+        return task
+    
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get task"
+        )
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_task(request: TaskModel, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
     new_task = Tasks(
             title=request.title,
@@ -46,9 +64,9 @@ async def create_task(request: TaskModel, user: dict = Depends(get_current_user)
                 detail="Task creation failed"
             )
 
-    return {"id": new_task.id, "status": "Task added successfully"}
+    return {"id": new_task.id, "message": "Task added successfully"}
 
-@router.put("/{task_id}")
+@router.put("/{task_id}", status_code=status.HTTP_200_OK)
 async def update_task(request: TaskModel, task_id : int = Path(gt=0), user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
     result = await db.execute(select(Tasks).filter(Tasks.id == task_id, Tasks.user_id == user["id"]))
     task = result.scalars().first()
@@ -71,7 +89,7 @@ async def update_task(request: TaskModel, task_id : int = Path(gt=0), user: dict
         
     return {"message": "Task updated successfully"}
 
-@router.delete("/{task_id}")
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(task_id : int = Path(gt=0), user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
     result = await db.execute(select(Tasks).filter(Tasks.id == task_id, Tasks.user_id == user["id"]))
     task = result.scalars().first()
