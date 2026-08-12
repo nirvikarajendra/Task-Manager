@@ -12,12 +12,7 @@ router = APIRouter(prefix="/task", tags=["Tasks"])
 async def get_task(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_async_db)):
     try:
         result = await db.execute(select(Tasks).filter(Tasks.user_id == user["id"]))
-        task = result.scalars().all()
-
-        if task is None:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
-
-        return task
+        return result.scalars().all()
     
     except Exception:
          raise HTTPException(

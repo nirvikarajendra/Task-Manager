@@ -85,7 +85,7 @@ def update_password(payload, token):
 
 def create_task(payload, token):
     try:
-        response = requests.post(f"{API_BASE_URL}/task", json=payload, headers={"Authorization": f"Bearer {token}"})
+        response = requests.post(f"{API_BASE_URL}/task/", json=payload, headers={"Authorization": f"Bearer {token}"})
     except requests.exceptions.ConnectionError:
         st.error("Could not connect to the server.")
         return
@@ -103,7 +103,7 @@ def create_task(payload, token):
 
 def get_tasks(token):
     try:
-        response = requests.get(f"{API_BASE_URL}/task", headers={"Authorization": f"Bearer {token}"})
+        response = requests.get(f"{API_BASE_URL}/task/", headers={"Authorization": f"Bearer {token}"})
     except requests.exceptions.ConnectionError:
         st.error("Could not connect to the server.")
         return []
@@ -172,3 +172,4 @@ def delete_task(task_id, token):
     else:
         error_detail = response.json().get("detail", "Task delete failed")
         st.error(error_detail)
+
