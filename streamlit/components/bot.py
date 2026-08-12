@@ -1,9 +1,9 @@
 import os
 from google import genai
 from api import create_task, get_tasks
+import streamlit as st
 
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-
+client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
 
 def make_tools(token: str):
 

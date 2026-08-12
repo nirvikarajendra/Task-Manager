@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-API_BASE_URL = os.getenv("API_URL")
+API_BASE_URL = st.secrets["API_URL"]
 
 def check_session_expired(response):
     if response.status_code == 401:
